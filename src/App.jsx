@@ -1,8 +1,8 @@
 import './App.css'
 import {
+    Divider,
     Flag,
     Header,
-    HeaderContent,
     Icon,
     Input,
     Table,
@@ -14,7 +14,7 @@ import {
     TableRow
 } from "semantic-ui-react";
 import React, {Component} from "react";
-import {Button, ButtonGroup} from "react-bootstrap";
+import {Button, ButtonGroup, Col, Container, Row} from "react-bootstrap";
 import {Switch} from "antd";
 
 class App extends Component {
@@ -40,6 +40,14 @@ class App extends Component {
             appFontSize = parseInt(appFontSize);
         }
 
+        let showSettings = localStorage.getItem("showSettings");
+        if (showSettings == null) {
+            showSettings = true;
+        } else {
+            showSettings = showSettings === true;
+        }
+
+
         this.state = {
             language, appFontSize, products,
             hasError: false,
@@ -50,6 +58,8 @@ class App extends Component {
                 },
                 fontSize: {english: "Increase Text Size", tagalog: "Lakihan Ang Sulat"},
                 language: {english: "Language", tagalog: "Wika"},
+                showSettings: {english: "Show Settings", tagalog: "I-pakita Ang Settings"},
+                hideSettings: {english: "Hide Settings", tagalog: "I-tago Ang Settings"},
 
                 delete: {english: "Delete", tagalog: "Burahin"},
                 title: {english: "Product List", tagalog: "Lista Ng Mga Producto"},
@@ -58,7 +68,9 @@ class App extends Component {
                 price: {english: "Price", tagalog: "Presyo"},
                 total: {english: "Total", tagalog: "Total"},
                 addMore: {english: "Add More Product", tagalog: "Magdagdag Ng Producto"}
-            }
+            },
+
+            showSettings
         }
 
         this.onChange = this.onChange.bind(this);
@@ -70,11 +82,12 @@ class App extends Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        const {language, products, appFontSize} = this.state;
+        const {language, products, appFontSize, showSettings} = this.state;
 
         localStorage.setItem("language", language);
         localStorage.setItem("appFontSize", appFontSize);
         localStorage.setItem("products", JSON.stringify(products));
+        localStorage.setItem("showSettings", showSettings);
     }
 
     onChange(index, name, value) {
@@ -93,7 +106,7 @@ class App extends Component {
     }
 
     render() {
-        const {hasError, products, language, languageMapping, appFontSize} = this.state;
+        const {hasError, products, language, languageMapping, appFontSize, showSettings} = this.state;
 
         let totalPrice = 0;
         let productList = [];
@@ -116,7 +129,6 @@ class App extends Component {
                                 }
                                 this.setState({products: newProductList});
                             }}
-                            style={{margin: "5px 0"}}
                         >
                             <Icon name="trash alternate" size={"big"}/>
                         </Button>
@@ -129,6 +141,7 @@ class App extends Component {
                                 this.onChange(index, name, value);
                             }}
                             value={name}
+                            style={{fontSize: appFontSize}}
                         />
                     </TableCell>
 
@@ -140,6 +153,7 @@ class App extends Component {
                                 this.onChange(index, name, value);
                             }}
                             value={quantity}
+                            style={{fontSize: appFontSize}}
                         />
                     </TableCell>
 
@@ -151,6 +165,7 @@ class App extends Component {
                                 this.onChange(index, name, value);
                             }}
                             value={price}
+                            style={{fontSize: appFontSize}}
                         />
                     </TableCell>
 
@@ -162,11 +177,14 @@ class App extends Component {
                                 this.onChange(index, name, value);
                             }}
                             value={total}
+                            style={{fontSize: appFontSize}}
                         />
                     </TableCell>
                 </TableRow>
             })
         }
+
+        let headerStyle = {fontSize: appFontSize, fontWeight: "bold"}
 
         if (hasError) {
             return (<div>
@@ -175,68 +193,29 @@ class App extends Component {
                 </h2>
             </div>)
         } else {
-            return (<div style={{"fontSize": appFontSize + "px"}}>
-                <div style={{padding: ".5rem 1rem", float: "left"}}>
-                    <span style={{
-                        fontSize: "25px",
-                        fontWeight: "bold"
-                    }}>{languageMapping["fontSize"][language]}: &nbsp;</span>
-
-                    <ButtonGroup style={{paddingBottom: "5px"}}>
-                        <Button variant="secondary" onClick={() => {
-                            if (appFontSize > 12)
-                                this.setState({appFontSize: appFontSize - 1})
-                        }}>
-                            <Icon name='minus'/>
-                        </Button>
-
-                        <Button variant="secondary" onClick={() => {
-                            this.setState({appFontSize: appFontSize + 1})
-                        }}>
-                            <Icon name='plus'/>
-                        </Button>
-                    </ButtonGroup>
-                </div>
-
-                <div style={{padding: ".5rem 1rem", float: "right"}}>
-                    <span style={{
-                        fontSize: "25px",
-                        fontWeight: "bold"
-                    }}>{languageMapping["language"][language]}: &nbsp;</span>
-                    <Switch
-                        checkedChildren={<Flag name='ph'/>}
-                        unCheckedChildren={<Flag name='us'/>}
-                        checked={language === "tagalog"}
-                        onChange={() => this.setState({
-                            language: language === "tagalog" ? "english" : "tagalog"
-                        })}
-                    />
-                </div>
-
-                <div>
-                    <Table definition celled striped padded color={'green'}>
+            return (<Container fluid style={{padding: "0"}}>
+                <Row style={{overflow: "auto", maxWidth: "95vw", maxHeight: "70vh"}}>
+                    <Table definition celled padded collapsing unstackable color={'green'} style={{padding: 0}}>
                         <TableHeader fullWidth>
                             <TableRow>
                                 <TableHeaderCell textAlign='center' singleLine colSpan={5}>
-                                    <Header>
+                                    <span style={headerStyle}>
                                         <Icon name='list'/>
-                                        <HeaderContent>
-                                            {languageMapping["title"][language]}
-                                        </HeaderContent>
-                                    </Header>
+                                        {languageMapping["title"][language]}
+                                    </span>
                                 </TableHeaderCell>
                             </TableRow>
 
                             <TableRow>
                                 <TableCell width='1'/>
-                                <TableCell textAlign='center' width='3'><Header
-                                    as='h3'>{languageMapping["productName"][language]}</Header></TableCell>
-                                <TableCell textAlign='center' width='4'><Header
-                                    as='h3'>{languageMapping["quantity"][language]}</Header></TableCell>
-                                <TableCell textAlign='center' width='4'><Header
-                                    as='h3'>{languageMapping["price"][language]} (PHP)</Header></TableCell>
-                                <TableCell textAlign='center' width='4'><Header
-                                    as='h3'>{languageMapping["total"][language]}</Header></TableCell>
+                                <TableCell textAlign='center' width='2'><span
+                                    style={headerStyle}>{languageMapping["productName"][language]}</span></TableCell>
+                                <TableCell textAlign='center' width='2'><span
+                                    style={headerStyle}>{languageMapping["quantity"][language]}</span></TableCell>
+                                <TableCell textAlign='center' width='2'><span
+                                    style={headerStyle}>{languageMapping["price"][language]} (PHP)</span></TableCell>
+                                <TableCell textAlign='center' width='2'><span
+                                    style={headerStyle}>{languageMapping["total"][language]}</span></TableCell>
                             </TableRow>
                         </TableHeader>
 
@@ -246,46 +225,107 @@ class App extends Component {
 
                         <TableFooter>
                             <TableRow>
-                                <TableHeaderCell colSpan='4' textAlign='right'>
-                                    <Header as='h2'>{languageMapping["total"][language]} (PHP)</Header>
+                                <TableHeaderCell colSpan='4' textAlign='right' style={{headerStyle}}>
+                                    {languageMapping["total"][language]} (PHP)
                                 </TableHeaderCell>
-                                <TableHeaderCell colSpan='1' textAlign='center' positive={true}>
-                                    <Header as="h2">{totalPrice} Pesos</Header>
+                                <TableHeaderCell colSpan='1' textAlign='center' positive={true} style={{headerStyle}}>
+                                    {totalPrice} Pesos
                                 </TableHeaderCell>
                             </TableRow>
                         </TableFooter>
                     </Table>
-                </div>
+                </Row>
 
-                <div style={{padding: "10px"}}>
-                    <Button
-                        variant="success"
-                        size='lg'
-                        style={{fontSize: '20pt'}}
-                        onClick={() => {
-                            let newProducts = products.map(v => (v));
-                            newProducts.push({name: "", quantity: "", price: ""})
+                <Row style={{margin: "10px 0"}}>
+                    <Col>
+                        <Button
+                            variant="success"
+                            size='lg'
+                            style={{padding: "15px"}}
+                            onClick={() => {
+                                let newProducts = products.map(v => (v));
+                                newProducts.push({name: "", quantity: "", price: ""})
 
-                            this.setState({
-                                products: newProducts
-                            })
-                        }}>
-                        <Icon name={'plus'}/>{languageMapping["addMore"][language]}
-                    </Button>
-                </div>
+                                this.setState({
+                                    products: newProducts
+                                })
+                            }}>
+                        <span style={headerStyle}>
+                            <Icon name={'plus'}/>
+                            {languageMapping["addMore"][language]}
+                        </span>
+                        </Button>
+                    </Col>
 
-                <div
-                    style={{
-                        backgroundColor: "white",
-                        paddingBottom: "10px",
-                        paddingTop: "10px",
-                        float: "right"
+                    <Col>
+                        <Button
+                            variant="secondary"
+                            style={{padding: "15px"}}
+                            onClick={() => {
+                                this.setState({
+                                    showSettings: !showSettings
+                                })
+                            }}>
+                        <span style={headerStyle}>
+                            <Icon name={'settings'}/>
+                            &nbsp;
+                            {showSettings === true
+                                ? languageMapping["hideSettings"][language]
+                                : languageMapping["showSettings"][language]
+                            }
+                        </span>
+                        </Button>
+                    </Col>
+                </Row>
+
+                {showSettings && [
+                    <Divider/>,
+
+                    <Row style={{marginTop: "10px"}}>
+                        <Col>
+                            <span style={headerStyle}>
+                                {languageMapping["fontSize"][language]}: &nbsp;
+                            </span>
+
+                            <ButtonGroup style={{paddingBottom: "5px"}}>
+                                <Button variant="secondary" onClick={() => {
+                                    if (appFontSize > 12)
+                                        this.setState({appFontSize: appFontSize - 1})
+                                }}>
+                                    <Icon name='minus'/>
+                                </Button>
+
+                                <Button variant="secondary" onClick={() => {
+                                    this.setState({appFontSize: appFontSize + 1})
+                                }}>
+                                    <Icon name='plus'/>
+                                </Button>
+                            </ButtonGroup>
+                        </Col>
+
+                        <Col style={{padding: ".5rem 1rem"}}>
+                            <span style={headerStyle}>{languageMapping["language"][language]}: &nbsp;</span>
+                            <Switch
+                                checkedChildren={<Flag name='ph'/>}
+                                unCheckedChildren={<Flag name='us'/>}
+                                checked={language === "tagalog"}
+                                onChange={() => this.setState({
+                                    language: language === "tagalog" ? "english" : "tagalog"
+                                })}
+                            />
+                        </Col>
+                    </Row>,
+
+                    <Row style={{
+                        marginTop: "15px",
+                        paddingBottom: "5px",
+                        paddingTop: "5px"
                     }}>
-                    <h4 style={{color: "black", textAlign: "center"}}>
-                        Developed by <a href="https://lordmendoza.com/">Lord Mendoza</a>
-                    </h4>
-                </div>
-            </div>)
+                        <h4>
+                            Developed by <a href="https://lordmendoza.com/">Lord Mendoza</a>
+                        </h4>
+                    </Row>]}
+            </Container>)
         }
     }
 }
