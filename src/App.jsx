@@ -44,7 +44,7 @@ class App extends Component {
         if (showSettings == null) {
             showSettings = true;
         } else {
-            showSettings = showSettings === true;
+            showSettings = showSettings === "true";
         }
 
 
@@ -58,8 +58,8 @@ class App extends Component {
                 },
                 fontSize: {english: "Increase Text Size", tagalog: "Lakihan Ang Sulat"},
                 language: {english: "Language", tagalog: "Wika"},
-                showSettings: {english: "Show Settings", tagalog: "I-pakita Ang Settings"},
-                hideSettings: {english: "Hide Settings", tagalog: "I-tago Ang Settings"},
+                showSettings: {english: "Show Settings", tagalog: "Ipakita Ang Settings"},
+                hideSettings: {english: "Hide Settings", tagalog: "Itago Ang Settings"},
 
                 delete: {english: "Delete", tagalog: "Burahin"},
                 title: {english: "Product List", tagalog: "Lista Ng Mga Producto"},
@@ -148,6 +148,8 @@ class App extends Component {
                     <TableCell textAlign='center'>
                         <Input
                             name={"quantity"}
+                            type={"numeric"}
+                            min={0}
                             placeholder={languageMapping["quantity"][language]}
                             onChange={(e, {name, value}) => {
                                 this.onChange(index, name, value);
@@ -160,6 +162,8 @@ class App extends Component {
                     <TableCell textAlign='center'>
                         <Input
                             name={"price"}
+                            type={"numeric"}
+                            min={0}
                             placeholder={languageMapping["price"][language]}
                             onChange={(e, {name, value}) => {
                                 this.onChange(index, name, value);
@@ -172,6 +176,8 @@ class App extends Component {
                     <TableCell textAlign='center'>
                         <Input
                             name={"total"}
+                            type={"numeric"}
+                            min={0}
                             placeholder={languageMapping["total"][language]}
                             onChange={(e, {name, value}) => {
                                 this.onChange(index, name, value);
@@ -225,10 +231,10 @@ class App extends Component {
 
                         <TableFooter>
                             <TableRow>
-                                <TableHeaderCell colSpan='4' textAlign='right' style={{headerStyle}}>
+                                <TableHeaderCell colSpan='4' textAlign='right' style={headerStyle}>
                                     {languageMapping["total"][language]} (PHP)
                                 </TableHeaderCell>
-                                <TableHeaderCell colSpan='1' textAlign='center' positive={true} style={{headerStyle}}>
+                                <TableHeaderCell colSpan='1' textAlign='center' positive={true} style={headerStyle}>
                                     {totalPrice} Pesos
                                 </TableHeaderCell>
                             </TableRow>
